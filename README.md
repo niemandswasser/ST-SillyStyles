@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://renri-shitpost.neocities.org/%D1%81%D0%B8%D0%BB%D0%B8.png" alt="ST-SillyStyles" width="320">
+  <img src="https://renri-shitpost.neocities.org/elli.jpg" alt="ST-SillyStyles" width="320">
 </p>
 
 <h1 align="center">ST-SillyStyles</h1>
