@@ -1,0 +1,315 @@
+/* ST-SillyStyles */
+
+#sstyles_root .sstyles-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 5px 0;
+}
+
+#sstyles_root .sstyles-hint {
+    color: #999;
+    font-size: 0.9em;
+    margin: 4px 0 8px;
+}
+
+#sstyles_root .sstyles-hint code,
+#sstyles_root label code {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+/* Sections */
+#sstyles_root .sstyles-section {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+#sstyles_root .sstyles-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.04);
+    cursor: pointer;
+    user-select: none;
+}
+
+#sstyles_root .sstyles-section-header:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+#sstyles_root .sstyles-section-icon { font-size: 1.1em; }
+#sstyles_root .sstyles-section-title { flex: 1; font-weight: 600; }
+#sstyles_root .sstyles-section-chevron { transition: transform 0.2s; }
+#sstyles_root .sstyles-section-chevron.sstyles-collapsed { transform: rotate(-90deg); }
+
+#sstyles_root .sstyles-section-body {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#sstyles_root .sstyles-section-body.sstyles-section-hidden {
+    display: none;
+}
+
+/* Toolbar */
+#sstyles_root .sstyles-toolbar-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+#sstyles_root .sstyles-toolbar-spacer {
+    flex: 1;
+}
+
+#sstyles_root .menu_button.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+#sstyles_root .menu_button.danger {
+    color: #f44336;
+}
+
+#sstyles_root .menu_button.danger:hover {
+    background: rgba(244, 67, 54, 0.15);
+    color: #ff6659;
+}
+
+/* Grid */
+#sstyles_root .sstyles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 8px;
+}
+
+#sstyles_root .sstyles-empty {
+    color: #888;
+    font-style: italic;
+    text-align: center;
+    padding: 16px 8px;
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+}
+
+#sstyles_root .sstyles-card {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s;
+    background: #2a2a2a;
+}
+
+#sstyles_root .sstyles-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+#sstyles_root .sstyles-card.sstyles-active {
+    border-color: #4caf50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+}
+
+#sstyles_root .sstyles-card.sstyles-selected {
+    border-color: #2196f3;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.4);
+}
+
+#sstyles_root .sstyles-card.sstyles-active.sstyles-selected {
+    border-color: #4caf50;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.6);
+}
+
+#sstyles_root .sstyles-card-check {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 18px;
+    height: 18px;
+    z-index: 3;
+    cursor: pointer;
+    accent-color: #2196f3;
+    opacity: 0.6;
+    transition: opacity 0.15s;
+}
+
+#sstyles_root .sstyles-card:hover .sstyles-card-check,
+#sstyles_root .sstyles-card-check:checked {
+    opacity: 1;
+}
+
+#sstyles_root .sstyles-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+#sstyles_root .sstyles-img-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    font-size: 2em;
+    background: #2a2a2a;
+}
+
+#sstyles_root .sstyles-card-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 4px 6px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+#sstyles_root .sstyles-card-name {
+    font-size: 0.85em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+}
+
+#sstyles_root .sstyles-card-actions {
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+#sstyles_root .sstyles-card:hover .sstyles-card-actions {
+    opacity: 1;
+}
+
+#sstyles_root .sstyles-card-action {
+    cursor: pointer;
+    padding: 2px;
+    color: #ccc;
+}
+
+#sstyles_root .sstyles-card-action:hover {
+    color: #fff;
+}
+
+#sstyles_root .sstyles-card-action.sstyles-delete {
+    color: #f44336;
+}
+
+#sstyles_root .sstyles-card-action.sstyles-delete:hover {
+    color: #ff6659;
+}
+
+#sstyles_root .sstyles-check {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 22px;
+    height: 22px;
+    background: #4caf50;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75em;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Add row */
+#sstyles_root .sstyles-add-row {
+    display: flex;
+    gap: 6px;
+    align-items: stretch;
+}
+
+#sstyles_root .sstyles-add-row .text_pole {
+    flex: 1;
+}
+
+/* Editor */
+#sstyles_root #sstyles_editor {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 8px;
+    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#sstyles_root .sstyles-editor-title {
+    margin: 0 0 4px;
+    font-size: 1em;
+    color: #bbb;
+}
+
+#sstyles_root .sstyles-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+#sstyles_root .sstyles-field label {
+    font-size: 0.9em;
+    color: #ccc;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+#sstyles_root .sstyles-label-hint {
+    font-size: 0.85em;
+    color: #888;
+    font-weight: normal;
+}
+
+#sstyles_root .sstyles-badge-req,
+#sstyles_root .sstyles-badge-opt {
+    font-size: 0.7em;
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+#sstyles_root .sstyles-badge-req {
+    background: rgba(244, 67, 54, 0.2);
+    color: #ff8a80;
+    border: 1px solid rgba(244, 67, 54, 0.4);
+}
+
+#sstyles_root .sstyles-badge-opt {
+    background: rgba(255, 255, 255, 0.08);
+    color: #999;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+#sstyles_root .sstyles-input-required {
+    border-color: rgba(244, 67, 54, 0.5) !important;
+    box-shadow: 0 0 0 1px rgba(244, 67, 54, 0.2) inset;
+}
+
+#sstyles_root .sstyles-row {
+    display: flex;
+    gap: 6px;
+    align-items: stretch;
+}

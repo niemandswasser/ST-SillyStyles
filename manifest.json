@@ -1,0 +1,12 @@
+{
+    "display_name": "ST-SillyStyles",
+    "loading_order": 50,
+    "requires": [],
+    "optional": [],
+    "js": "index.js",
+    "css": "style.css",
+    "author": "niemandswasser",
+    "version": "1.0.0",
+    "homePage": "https://github.com/niemandswasser/ST-SillyStyles",
+    "auto_update": false
+}
