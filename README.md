@@ -6,8 +6,8 @@
 
 <p align="center">
   Менеджер пресетов стилей для <a href="https://github.com/0xl0cal/sillyimages">sillyimages</a> и его форков.<br>
-  Сохраняй стили с превьюшками и переключайся между ними одним кликом.
-  Поддерживает NanoBanana и GPT Image 2
+  Сохраняй стили с превьюшками и переключайся между ними одним кликом.<br>
+  Поддерживает NanoBanana и GPT Image 2.
 </p>
 
 ---
