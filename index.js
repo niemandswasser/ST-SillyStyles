@@ -172,7 +172,11 @@ function injectStyleIntoPromptString(prompt) {
 
 function isImageGenUrl(url) {
     if (!url || typeof url !== 'string') return false;
+    // OpenAI / Electron Hub / прочие OpenAI-совместимые: JSON body
     if (/\/v1\/images\/generations(\?|$)/i.test(url)) return true;
+    // OpenAI gpt-image-*, dall-e-2, flux-kontext: multipart FormData body
+    if (/\/v1\/images\/edits(\?|$)/i.test(url)) return true;
+    // Gemini / nano-banana: JSON body
     if (/\/v1(beta)?\/models\/[^/]+:generateContent(\?|$)/i.test(url)) return true;
     return false;
 }
@@ -204,6 +208,50 @@ function rewriteBodyJson(bodyText) {
     return changed ? JSON.stringify(parsed) : bodyText;
 }
 
+/**
+ * Rewrites the `prompt` field of a multipart FormData body.
+ * Used by `/v1/images/edits` (OpenAI gpt-image-*, dall-e-2, flux-kontext).
+ * Returns a NEW FormData (or the same if no change).
+ *
+ * FormData entries preserve order; we rebuild to keep that order — some
+ * proxies care about field ordering for image[] vs image vs prompt.
+ */
+function rewriteBodyFormData(form) {
+    if (!(form instanceof FormData)) return form;
+
+    const promptValue = form.get('prompt');
+    if (typeof promptValue !== 'string') return form;
+
+    const updated = injectStyleIntoPromptString(promptValue);
+    if (updated === promptValue) return form;
+
+    const next = new FormData();
+    for (const [key, value] of form.entries()) {
+        if (key === 'prompt') {
+            next.append('prompt', updated);
+        } else {
+            next.append(key, value);
+        }
+    }
+    return next;
+}
+
+/**
+ * Detects the body kind on init / Request:
+ *   - 'json'     — body is JSON string
+ *   - 'formdata' — body is multipart FormData (OpenAI /v1/images/edits)
+ *   - 'request'  — body is on a Request object (need to re-extract)
+ *   - null       — nothing we can rewrite
+ */
+function detectBodyKind(init, input) {
+    if (init && init.body != null) {
+        if (typeof init.body === 'string') return 'json-init';
+        if (typeof FormData !== 'undefined' && init.body instanceof FormData) return 'formdata-init';
+    }
+    if (input instanceof Request) return 'request';
+    return null;
+}
+
 function installFetchInterceptor() {
     if (window.__sstylesFetchPatched) return;
     const original = window.fetch;
@@ -222,29 +270,70 @@ function installFetchInterceptor() {
                 return original.call(this, input, init);
             }
 
-            let bodyText = null;
-            let source = null;
-            if (init && typeof init.body === 'string') {
-                bodyText = init.body;
-                source = 'init';
-            } else if (input instanceof Request) {
-                try { bodyText = await input.clone().text(); source = 'request'; }
-                catch { /* ignore */ }
+            const kind = detectBodyKind(init, input);
+            if (!kind) return original.call(this, input, init);
+
+            // ----- JSON body (init.body is string) -----
+            if (kind === 'json-init') {
+                const rewritten = rewriteBodyJson(init.body);
+                if (rewritten === init.body) return original.call(this, input, init);
+                console.log(`[${MODULE_NAME}] Injected preset style into ${url} (JSON init)`);
+                return original.call(this, input, { ...init, body: rewritten });
             }
 
-            if (!bodyText) return original.call(this, input, init);
-
-            const rewritten = rewriteBodyJson(bodyText);
-            if (rewritten === bodyText) return original.call(this, input, init);
-
-            console.log(`[${MODULE_NAME}] Injected preset style into ${url}`);
-
-            if (source === 'init') {
-                const newInit = { ...init, body: rewritten };
-                return original.call(this, input, newInit);
+            // ----- FormData body (init.body is FormData) -----
+            // Это путь OpenAI /v1/images/edits для gpt-image-* / dall-e-2 /
+            // flux-1-kontext-*: тело — multipart, поле `prompt` — обычная
+            // строка, остальные (`image`, `image[]`, `model`...) — Blob/strings.
+            if (kind === 'formdata-init') {
+                const next = rewriteBodyFormData(init.body);
+                if (next === init.body) return original.call(this, input, init);
+                console.log(`[${MODULE_NAME}] Injected preset style into ${url} (FormData init)`);
+                return original.call(this, input, { ...init, body: next });
             }
-            if (source === 'request') {
+
+            // ----- Request input -----
+            // Тело может быть JSON или FormData. Сначала пытаемся как
+            // FormData (через .clone().formData()). Если бросает — fallback
+            // на text() и JSON path.
+            if (kind === 'request') {
                 const req = input;
+                const ct = String(req.headers?.get?.('content-type') || '').toLowerCase();
+                const looksLikeFormData = ct.includes('multipart/form-data');
+
+                if (looksLikeFormData) {
+                    let form = null;
+                    try { form = await req.clone().formData(); } catch { /* fallback below */ }
+                    if (form) {
+                        const next = rewriteBodyFormData(form);
+                        if (next === form) return original.call(this, input, init);
+                        console.log(`[${MODULE_NAME}] Injected preset style into ${url} (FormData request)`);
+                        // Не передаём content-type вручную — fetch проставит
+                        // правильный multipart boundary под новый FormData.
+                        const headers = new Headers(req.headers);
+                        headers.delete('content-type');
+                        const rebuilt = new Request(req.url, {
+                            method: req.method,
+                            headers,
+                            body: next,
+                            mode: req.mode,
+                            credentials: req.credentials,
+                            cache: req.cache,
+                            redirect: req.redirect,
+                            referrer: req.referrer,
+                            integrity: req.integrity,
+                        });
+                        return original.call(this, rebuilt, init);
+                    }
+                }
+
+                let bodyText = null;
+                try { bodyText = await req.clone().text(); } catch { /* ignore */ }
+                if (!bodyText) return original.call(this, input, init);
+
+                const rewritten = rewriteBodyJson(bodyText);
+                if (rewritten === bodyText) return original.call(this, input, init);
+                console.log(`[${MODULE_NAME}] Injected preset style into ${url} (JSON request)`);
                 const rebuilt = new Request(req.url, {
                     method: req.method,
                     headers: req.headers,
